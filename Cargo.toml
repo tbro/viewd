@@ -1,0 +1,31 @@
+[package]
+name = "viewd"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "viewd-cli"
+path = "src/bin/cli.rs"
+
+[[bin]]
+name = "viewd-server"
+path = "src/bin/server.rs"
+
+[dependencies]
+anyhow = "1.0.75"
+atoi = "2.0.0"
+bytes = "1.4.0"
+clap = { version = "4.4.0", features = ["derive"] }
+http = "0.2.9"
+rayon = "1.7.0"
+terminal-keycode = "1.1.1"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1.37"
+tracing-subscriber = "0.3.17"
+
+[dependencies.sdl2]
+version = "0.35.2"
+default-features = false
+features = ["image"]
