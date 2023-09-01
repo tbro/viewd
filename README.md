@@ -16,9 +16,11 @@ Accepts a directory containing images as input. It *should* filter out
 non-image files. No recursion is done into sub-directories.
 
 on the display box:
+
 	viewd-server --path ~/dir/photos/
 
 on the client:
+
 	viewd-cli next
 
 Where `next` is any supported command.
@@ -27,10 +29,10 @@ Where `next` is any supported command.
 
 Currently supported commands are
 
-	* `next`
-	* `prev`
-	* `fullscreen`
-	* `rotate`
+  * `next`
+  * `prev`
+  * `fullscreen`
+  * `rotate`
 
 ## dependencies
 
