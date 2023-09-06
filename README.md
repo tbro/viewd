@@ -5,9 +5,8 @@ Only tested on linux.
 
 ## Todo
 
-  * TLS
+  * TLS (or some form of mutual verification and validation)
   * terminal interface
-  * pageant mode
   * ???
 
 ## usage
@@ -33,6 +32,10 @@ Currently supported commands are
   * `prev`
   * `fullscreen`
   * `rotate`
+  * `pageant`
+
+`pageant` make the image advance automatically every second. The rest
+should be self explanitory.
 
 ## dependencies
 
