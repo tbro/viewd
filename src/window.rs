@@ -1,5 +1,8 @@
 use std::fmt;
 
+/// String used as a db key for the image currently displayed
+pub const DISPLAY_PATH: &str = "display_path";
+
 /// Possible commands to execute on the Server, either
 /// Navigating the files under `--path` or executing comands
 /// on the SDL window.
