@@ -102,11 +102,11 @@ mod tests {
     fn test_cursor_next() -> Result<()> {
         let p = get_paths();
         let mut v = PathCursor::new(p);
-        assert_eq!(v.next(), Some(&Path::new("./foo/bar.txt").to_path_buf()));
-        assert_eq!(v.next(), Some(&Path::new("./bim/bam.txt").to_path_buf()));
-        assert_eq!(v.next(), Some(&Path::new("./bar/foo.txt").to_path_buf()));
-        assert_eq!(v.next(), Some(&Path::new("./foo/bar.txt").to_path_buf()));
-        assert_eq!(v.next(), Some(&Path::new("./bim/bam.txt").to_path_buf()));
+        assert_eq!(v.next(), Some(Path::new("./foo/bar.txt").to_path_buf()));
+        assert_eq!(v.next(), Some(Path::new("./bim/bam.txt").to_path_buf()));
+        assert_eq!(v.next(), Some(Path::new("./bar/foo.txt").to_path_buf()));
+        assert_eq!(v.next(), Some(Path::new("./foo/bar.txt").to_path_buf()));
+        assert_eq!(v.next(), Some(Path::new("./bim/bam.txt").to_path_buf()));
         Ok(())
     }
     #[test]
