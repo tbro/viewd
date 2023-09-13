@@ -1,4 +1,4 @@
-use viewd::{clients::Client, DEFAULT_PORT, window::DISPLAY_PATH};
+use viewd::{clients::Client, window::DISPLAY_PATH, DEFAULT_PORT};
 
 use clap::{Parser, Subcommand};
 
@@ -45,38 +45,38 @@ async fn main() -> viewd::Result<()> {
     // Process the requested command
     // Set takes key, value, but currently only key is used.
     match cli.command {
-	Command::Next => {
-	    client.set("next", vec![].into()).await?;
-	    println!("OK");
-	}
-	Command::Prev => {
-	    client.set("prev", vec![].into()).await?;
-	    println!("OK");
-	}
-	Command::Get => {
-	    let s = DISPLAY_PATH;
-	    if let Some(value) = client.get(s).await? {
-		if let Ok(string) = str::from_utf8(&value) {
-		    println!("\"{}\"", string);
-		} else {
-		    println!("{:?}", value);
-		}
-	    } else {
-		println!("(nil)");
-	    }
-	}
-	Command::Rotate => {
-	    client.set("rotate", vec![].into()).await?;
-	    println!("OK");
-	}
-	Command::Fullscreen => {
-	    client.set("fullscreen", vec![].into()).await?;
-	    println!("OK");
-	}
-	Command::Pageant => {
-	    client.set("pageant", vec![].into()).await?;
-	    println!("OK");
-	}
+        Command::Next => {
+            client.set("next", vec![].into()).await?;
+            println!("OK");
+        }
+        Command::Prev => {
+            client.set("prev", vec![].into()).await?;
+            println!("OK");
+        }
+        Command::Get => {
+            let s = DISPLAY_PATH;
+            if let Some(value) = client.get(s).await? {
+                if let Ok(string) = str::from_utf8(&value) {
+                    println!("\"{}\"", string);
+                } else {
+                    println!("{:?}", value);
+                }
+            } else {
+                println!("(nil)");
+            }
+        }
+        Command::Rotate => {
+            client.set("rotate", vec![].into()).await?;
+            println!("OK");
+        }
+        Command::Fullscreen => {
+            client.set("fullscreen", vec![].into()).await?;
+            println!("OK");
+        }
+        Command::Pageant => {
+            client.set("pageant", vec![].into()).await?;
+            println!("OK");
+        }
     }
 
     Ok(())

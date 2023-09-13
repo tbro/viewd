@@ -9,4 +9,3 @@ mod state;
 use state::WindowState;
 
 mod pageant;
-use pageant::PageantMode;

@@ -57,7 +57,7 @@ impl Frame {
             b'+' => {
                 get_line(src)?;
                 Ok(())
-            },
+            }
             b'$' => {
                 if b'-' == peek_u8(src)? {
                     // Skip '-1\r\n'
@@ -80,7 +80,6 @@ impl Frame {
                 Ok(())
             }
             actual => Err(format!("protocol error; invalid frame type byte `{}`", actual).into()),
-
         }
     }
 
@@ -94,7 +93,7 @@ impl Frame {
                 let string = String::from_utf8(line)?;
 
                 Ok(Frame::Simple(string))
-            },
+            }
             b'$' => {
                 if b'-' == peek_u8(src)? {
                     let line = get_line(src)?;

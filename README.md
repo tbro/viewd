@@ -5,8 +5,7 @@ Only tested on linux.
 
 ## Todo
 
-  * TLS (or some form of mutual verification and validation)
-  * terminal interface
+  * lots of stuff
   * ???
 
 ## usage
@@ -16,28 +15,34 @@ non-image files. No recursion is done into sub-directories.
 
 on the display box:
 
-	viewd-server --path ~/dir/photos/
+	cargo run --bin viewd-server -- --path ~/dir/photos/
 
 on the client:
 
-	viewd-cli next
-
-Where `next` is any supported command.
+	cargo run --bin viewd-tui
 
 ### commands
 
 Currently supported commands are
 
-  * `next`
-  * `prev`
-  * `fullscreen`
-  * `rotate`
-  * `pageant`
+	* `->` (arrow right) next image
+    * `<-` (arrow left) previous image
+	* `f`  fullscreen
+	* `r`  rotate
+	* `p`  pageant mode (automatically scroll through the images)
+    * `q`  quit (the client)
 
 `pageant` make the image advance automatically every second. The rest
 should be self explanitory.
 
-## dependencies
+### viewd-cli
+
+In a addition to the TUI, there is also a cli. You can get its usage
+by passing the `--help` option.
+
+	cargo run --bin viewd-cli -- --help
+	
+## system dependencies
 
 You need sdl libraries on your OS. Milage may vary depending on sytem, but on debian-like apt can obtain them for you:
 

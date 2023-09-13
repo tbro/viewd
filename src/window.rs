@@ -25,28 +25,28 @@ pub enum WindowCommand {
 impl WindowCommand {
     /// returns WindowCommand for string
     pub(crate) fn from_str(cmd_name: &str) -> crate::Result<WindowCommand> {
-	let cmd = match cmd_name.to_lowercase().as_str() {
-	    "next" => WindowCommand::Next,
-	    "prev" => WindowCommand::Prev,
-	    "fullscreen" => WindowCommand::Fullscreen,
-	    "rotate" => WindowCommand::Rotate,
-	    "pageant" => WindowCommand::Pageant,
-	    &_ => todo!(),
-	};
+        let cmd = match cmd_name.to_lowercase().as_str() {
+            "next" => WindowCommand::Next,
+            "prev" => WindowCommand::Prev,
+            "fullscreen" => WindowCommand::Fullscreen,
+            "rotate" => WindowCommand::Rotate,
+            "pageant" => WindowCommand::Pageant,
+            &_ => todo!(),
+        };
 
-	Ok(cmd)
+        Ok(cmd)
     }
 }
 
 impl fmt::Display for WindowCommand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-	match self {
-	    Self::Next => write!(f, "Next"),
-	    Self::Prev => write!(f, "Previous"),
-	    Self::Fullscreen => write!(f, "Fullscren"),
-	    Self::Rotate => write!(f, "Rotate"),
-	    Self::Pageant => write!(f, "Pageant"),
-	    Self::Quit => write!(f, "Quit"),
-	}
+        match self {
+            Self::Next => write!(f, "Next"),
+            Self::Prev => write!(f, "Previous"),
+            Self::Fullscreen => write!(f, "Fullscren"),
+            Self::Rotate => write!(f, "Rotate"),
+            Self::Pageant => write!(f, "Pageant"),
+            Self::Quit => write!(f, "Quit"),
+        }
     }
 }

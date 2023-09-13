@@ -1,5 +1,5 @@
 use sdl2::video::FullscreenType;
-use std::ffi::{OsString, OsStr};
+use std::ffi::{OsStr, OsString};
 
 use super::pageant::PageantMode;
 
@@ -17,36 +17,41 @@ pub struct WindowState {
 
 impl WindowState {
     pub fn new(title: &str) -> Self {
-	let title = OsString::from(title);
-	let fullscreen = FullscreenType::Off;
-	let rotation: f64 = 0.0;
+        let title = OsString::from(title);
+        let fullscreen = FullscreenType::Off;
+        let rotation: f64 = 0.0;
         let pageant = PageantMode::new();
-	let pageant_mode = false;
-	let pageant_ready = false;
-	Self { title, fullscreen, rotation, pageant }
+        let _pageant_mode = false;
+        let _pageant_ready = false;
+        Self {
+            title,
+            fullscreen,
+            rotation,
+            pageant,
+        }
     }
     pub fn fullscreen(&self) -> FullscreenType {
-	self.fullscreen
+        self.fullscreen
     }
     pub fn rotation(&self) -> f64 {
-	self.rotation
+        self.rotation
     }
     pub fn title(&self) -> &str {
-	self.title.to_str().unwrap()
+        self.title.to_str().unwrap()
     }
     pub fn toggle_fullscreen(&mut self) -> FullscreenType {
-	match self.fullscreen {
-	    FullscreenType::Off => self.fullscreen = FullscreenType::Desktop,
-	    FullscreenType::True => self.fullscreen = FullscreenType::Off,
-	    FullscreenType::Desktop => self.fullscreen = FullscreenType::Off,
-	};
-	self.fullscreen
+        match self.fullscreen {
+            FullscreenType::Off => self.fullscreen = FullscreenType::Desktop,
+            FullscreenType::True => self.fullscreen = FullscreenType::Off,
+            FullscreenType::Desktop => self.fullscreen = FullscreenType::Off,
+        };
+        self.fullscreen
     }
     pub fn rotate(&mut self, f: f64) -> f64 {
-	self.rotation += f;
-	self.rotation
+        self.rotation += f;
+        self.rotation
     }
     pub fn set_title(&mut self, s: &OsStr) {
-	self.title = s.into();
+        self.title = s.into();
     }
 }
