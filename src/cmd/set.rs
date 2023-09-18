@@ -66,7 +66,7 @@ impl Set {
         tx: Sender<WindowCommand>,
         dst: &mut Connection,
     ) -> crate::Result<()> {
-        // get WindowCommand varient for command string
+        // get WindowCommand variant for command string
         // and transmit it to the Window
         let cmd = WindowCommand::from_str(&self.key)?;
         tx.send(cmd).await?;

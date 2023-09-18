@@ -103,7 +103,7 @@ pub(crate) async fn run(
 impl Listener {
     async fn run(&mut self) -> crate::Result<()> {
         info!("accepting inbound connections");
-        // initialize channel to recieve window commands from request handlers
+        // initialize channel to receive window commands from request handlers
 
         loop {
             // Wait for a permit to become available
@@ -128,7 +128,7 @@ impl Listener {
 
             // Create the necessary per-connection handler state.
             let mut handler = Handler {
-                // TODO maybe we weill do something similar for comand exec
+                // TODO maybe we will do something similar for command exec
                 // Get a handle to the shared database.
                 db: self.db_holder.db(),
                 win_cmd_tx: self.win_cmd_tx.clone(),

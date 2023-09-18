@@ -7,7 +7,7 @@ use crate::db::DbDropGuard;
 use crate::sdl_window::SdlWindow;
 use crate::server;
 
-/// Spawns TPCListner task and initialized SdlWindow control loop. Database
+/// Spawns TPCListener task and initialized SdlWindow control loop. Database
 /// is initialized and passed to both for shared state. Mpsc channel is used to
 /// transmit commands from Tcp handler to Sdl Window.
 pub async fn run<A: ToSocketAddrs>(addr: A, path: &Path) -> crate::Result<()> {

@@ -4,7 +4,7 @@ use std::fmt;
 pub const DISPLAY_PATH: &str = "display_path";
 
 /// Possible commands to execute on the Server, either
-/// Navigating the files under `--path` or executing comands
+/// Navigating the files under `--path` or executing commands
 /// on the SDL window.
 #[derive(Debug, Clone, Copy)]
 pub enum WindowCommand {
@@ -43,7 +43,7 @@ impl fmt::Display for WindowCommand {
         match self {
             Self::Next => write!(f, "Next"),
             Self::Prev => write!(f, "Previous"),
-            Self::Fullscreen => write!(f, "Fullscren"),
+            Self::Fullscreen => write!(f, "Fullscreen"),
             Self::Rotate => write!(f, "Rotate"),
             Self::Pageant => write!(f, "Pageant"),
             Self::Quit => write!(f, "Quit"),

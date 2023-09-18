@@ -1,5 +1,9 @@
 # viewd
-A image veiwer server and client for viewing images on a remote box (presumably with monitor connected). Probably no for everyone, but it is useful to me. It uses sdl2 for image dispaly and TCP for network commnunication. Network protocol is a subset of redis communication protocol.
+A image viewer server and client for viewing images on a remote box
+(presumably with monitor connected). Probably no for everyone, but it
+is useful to me. It uses sdl2 for image display and TCP for network
+communication. Network protocol is a subset of redis communication
+protocol.
 
 Only tested on linux.
 
@@ -44,7 +48,8 @@ by passing the `--help` option.
 	
 ## system dependencies
 
-You need sdl libraries on your OS. Milage may vary depending on sytem, but on debian-like apt can obtain them for you:
+You need sdl libraries on your OS. Mileage may vary depending on system,
+but on debian-like apt can obtain them for you:
 
 	sudo apt-get install libsdl2-image-2.0-0
 
