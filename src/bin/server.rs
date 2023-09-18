@@ -20,7 +20,7 @@ pub async fn main() -> viewd::Result<()> {
     let cli = Cli::parse();
     let port = cli.port.unwrap_or(DEFAULT_PORT);
     let path = cli.path;
-    let _ = control::run(&format!("127.0.0.1:{}", port), &path).await;
+    control::run(&format!("127.0.0.1:{}", port), &path).await?;
     Ok(())
 }
 
