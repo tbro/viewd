@@ -1,9 +1,8 @@
+use anyhow::{anyhow, Result};
 use sdl2::video::FullscreenType;
 use std::ffi::{OsStr, OsString};
 
-use super::pageant::PageantMode;
-
-/// Struct to hold current state of
+/// Struct to hold Window State
 pub struct WindowState {
     /// Degrees to rotate the image
     rotation: f64,
@@ -11,8 +10,6 @@ pub struct WindowState {
     fullscreen: FullscreenType,
     /// Title shown at the top of the window
     title: OsString,
-    /// Logic to automatically advance cursor
-    pageant: PageantMode,
 }
 
 impl WindowState {
@@ -20,14 +17,10 @@ impl WindowState {
         let title = OsString::from(title);
         let fullscreen = FullscreenType::Off;
         let rotation: f64 = 0.0;
-        let pageant = PageantMode::new();
-        let _pageant_mode = false;
-        let _pageant_ready = false;
         Self {
             title,
             fullscreen,
             rotation,
-            pageant,
         }
     }
     pub fn fullscreen(&self) -> FullscreenType {
@@ -36,8 +29,12 @@ impl WindowState {
     pub fn rotation(&self) -> f64 {
         self.rotation
     }
-    pub fn title(&self) -> &str {
-        self.title.to_str().unwrap()
+    pub fn title(&self) -> Result<&str> {
+        let title = self
+            .title
+            .to_str()
+            .ok_or(anyhow!("could not convert OsString to str"))?;
+        Ok(title)
     }
     pub fn toggle_fullscreen(&mut self) -> FullscreenType {
         match self.fullscreen {

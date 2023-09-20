@@ -115,32 +115,35 @@ impl SdlWindow {
     fn update_canvas(&mut self) -> Result<()> {
         self.canvas.clear();
         let texture_creator = self.canvas.texture_creator();
-	let current = self.cursor.image.clone();
-	if let Ok(texture) = texture_creator.load_texture(self.cursor.image.clone()) {
+        let current = self.cursor.image.clone();
+        if let Ok(texture) = texture_creator.load_texture(self.cursor.image.clone()) {
             self.canvas
-            .copy_ex(
-                &texture,
-                None,
-                None,
-                self.state.rotation() * -90_f64,
-                None,
-                false,
-                false,
-            )
-            .map_err(|e| anyhow!("Update Canvas Error: {}", e))?;
+                .copy_ex(
+                    &texture,
+                    None,
+                    None,
+                    self.state.rotation() * -90_f64,
+                    None,
+                    false,
+                    false,
+                )
+                .map_err(|e| anyhow!("Update Canvas Error: {}", e))?;
             self.canvas.present();
-	} else {
-	    // log image name for debugging purposes and silently fail
-	    // user will have to call next() again
-	    debug!("Could not load path: {}", current.display());
-	}
+        } else {
+            // log image name for debugging purposes and silently fail
+            // user will have to call next() again
+            debug!("Could not load path: {}", current.display());
+        }
         Ok(())
     }
     fn update_window(&mut self) -> Result<()> {
         let window = self.canvas.window_mut();
-        window.set_fullscreen(self.state.fullscreen()).unwrap();
+        let title = self.state.title()?;
         window
-            .set_title(self.state.title())
+            .set_fullscreen(self.state.fullscreen())
+            .map_err(|e| anyhow!("Update Window Error: {}", e))?;
+        window
+            .set_title(title)
             .map_err(|e| anyhow!("Update Window Error: {}", e))?;
         Ok(())
     }
@@ -149,12 +152,13 @@ impl SdlWindow {
         texture_creator.load_texture(image).ok().map(|_| ())
     }
     /// Update image if we in pageant mode and timeout has elapsed
-    pub fn pageant(&mut self) {
+    pub fn pageant(&mut self) -> Result<()> {
         if self.pageant.should_update() {
             self.pageant.set_instant();
-            let _ = self.next();
-            let _ = self.update_canvas();
+            self.next()?;
+            self.update_canvas()?;
         };
+        Ok(())
     }
 
     /// Handle Commands received from mpsc channel as well as minimal
@@ -192,7 +196,7 @@ impl SdlWindow {
                 self.update_canvas()?;
             }
             // we check if image needs updating on every iteration
-            self.pageant();
+            self.pageant()?;
 
             for event in self.event_pump.poll_iter() {
                 match event {
@@ -204,7 +208,7 @@ impl SdlWindow {
                     _ => {}
                 };
             }
-	    std::thread::sleep(std::time::Duration::from_millis(10));
+            std::thread::sleep(std::time::Duration::from_millis(10));
         }
     }
 }

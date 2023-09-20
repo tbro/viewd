@@ -45,7 +45,16 @@ In a addition to the TUI, there is also a cli. You can get its usage
 by passing the `--help` option.
 
 	cargo run --bin viewd-cli -- --help
-	
+
+## FAQ
+
+### Some times I have to hit `next` twice to advance
+This will mostly happen in a directory where you have non-image
+files. `next` will silently fail when sdl2 can't load a file. So you
+have to advance until you get to a supported image file. This also
+occurs when changing direction (from `next` to `prev` or `prev` to
+`next`) due to how the cursor works.
+
 ## system dependencies
 
 You need sdl libraries on your OS. Mileage may vary depending on system,

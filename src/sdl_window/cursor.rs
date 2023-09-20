@@ -66,11 +66,11 @@ impl PathCursor {
 
     /// Import all the files under given dir path, performing some sanity checks.
     pub fn import_files(path: &Path) -> Result<Self> {
-	let mut paths = WalkDir::new(path)
-	    .into_iter()
+        let mut paths = WalkDir::new(path)
+            .into_iter()
             .par_bridge()
             // ignore i/o errors
-	    .filter_map(|e| e.ok())
+            .filter_map(|e| e.ok())
             // filter out directories
             .filter(|x| !x.file_type().is_dir())
             .map(|x| x.into_path())
@@ -120,10 +120,10 @@ mod tests {
     }
     #[test]
     fn test_walkdir() -> Result<()> {
-	// unnecessary test for personal sanity
-	let mut glob = WalkDir::new("./").into_iter().filter_map(|e| e.ok());
-	let x = glob.find(|e|e.file_name() == "Cargo.toml").unwrap();
-	assert_eq!("Cargo.toml", x.file_name());
+        // unnecessary test for personal sanity
+        let mut glob = WalkDir::new("./").into_iter().filter_map(|e| e.ok());
+        let x = glob.find(|e| e.file_name() == "Cargo.toml").unwrap();
+        assert_eq!("Cargo.toml", x.file_name());
         Ok(())
     }
 }

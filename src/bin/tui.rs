@@ -1,10 +1,10 @@
 use clap::Parser;
-use crossterm::terminal::{size, Clear, ClearType, SetSize, SetTitle};
+use crossterm::terminal::{Clear, ClearType, SetTitle};
 use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;
 use std::io::{self, Write};
-use std::{str, fmt};
 use std::time::Duration;
+use std::{fmt, str};
 
 use crossterm::event::KeyModifiers;
 use crossterm::{
@@ -35,18 +35,18 @@ enum ServerCommand {
     Rotate,
     Prev,
     Next,
-    Pageant
+    Pageant,
 }
 
 impl fmt::Display for ServerCommand {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-	match self {
-	    Self::Fullscreen => write!(f, "fullscreen"),
-	    Self::Rotate => write!(f, "rotate"),
-	    Self::Pageant => write!(f, "pageant"),
-	    Self::Next => write!(f, "next"),
-	    Self::Prev => write!(f, "prev"),
-	}
+        match self {
+            Self::Fullscreen => write!(f, "fullscreen"),
+            Self::Rotate => write!(f, "rotate"),
+            Self::Pageant => write!(f, "pageant"),
+            Self::Next => write!(f, "next"),
+            Self::Prev => write!(f, "prev"),
+        }
     }
 }
 
@@ -101,7 +101,7 @@ impl Tui {
                 let s = DISPLAY_PATH;
                 if let Some(value) = self.client.get(s).await? {
                     if let Ok(s) = str::from_utf8(&value) {
-			self.update(s)?
+            self.update(s)?
                      }
                  }
              }
