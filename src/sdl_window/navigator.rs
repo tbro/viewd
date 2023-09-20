@@ -1,5 +1,5 @@
 use anyhow::Result;
-use anyhow::bail;
+use anyhow::anyhow;
 
 use std::path::Path;
 use std::path::PathBuf;
@@ -21,11 +21,7 @@ impl Navigator {
     /// cursor holds at least one path.
     pub fn new(path: &Path) -> Result<Self> {
         let mut cursor = PathCursor::import_files(path)?;
-        let image = if let Some(path) = cursor.next() {
-            path.to_path_buf()
-        } else {
-            return bail!("no images found");
-        };
+        let image = cursor.next().ok_or(anyhow!("no image found"))?;
         let n = Self { cursor, image };
         Ok(n)
     }
