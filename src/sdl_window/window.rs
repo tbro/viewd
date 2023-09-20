@@ -86,13 +86,11 @@ impl SdlWindow {
         Ok(s)
     }
     fn next(&mut self) -> Result<()> {
-        self.cursor.next();
-        self.update()?;
+        self.cursor.next().ok_or(anyhow!("no image found"))?;
         Ok(())
     }
     fn prev(&mut self) -> Result<()> {
         self.cursor.prev();
-        self.update()?;
         Ok(())
     }
     /// wraps update methods
@@ -103,7 +101,7 @@ impl SdlWindow {
         Ok(())
     }
     pub(crate) fn init(&mut self) -> Result<()> {
-        self.cursor.next().unwrap();
+        self.cursor.next().ok_or(anyhow!("no image found"))?;
         self.update()?;
         Ok(())
     }
@@ -117,10 +115,9 @@ impl SdlWindow {
     fn update_canvas(&mut self) -> Result<()> {
         self.canvas.clear();
         let texture_creator = self.canvas.texture_creator();
-        let texture = texture_creator
-            .load_texture(self.cursor.image.clone())
-            .map_err(|e| anyhow!("Update Canvas Error: {}", e))?;
-        self.canvas
+	let current = self.cursor.image.clone();
+	if let Ok(texture) = texture_creator.load_texture(self.cursor.image.clone()) {
+            self.canvas
             .copy_ex(
                 &texture,
                 None,
@@ -131,7 +128,12 @@ impl SdlWindow {
                 false,
             )
             .map_err(|e| anyhow!("Update Canvas Error: {}", e))?;
-        self.canvas.present();
+            self.canvas.present();
+	} else {
+	    // log image name for debugging purposes and silently fail
+	    // user will have to call next() again
+	    debug!("Could not load path: {}", current.display());
+	}
         Ok(())
     }
     fn update_window(&mut self) -> Result<()> {

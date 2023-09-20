@@ -30,6 +30,7 @@ terminal-keycode = "1.1.1"
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
+walkdir = "2.4.0"
 
 [dependencies.sdl2]
 version = "0.35.2"

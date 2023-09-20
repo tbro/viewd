@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use rayon::prelude::*;
 use std::path::{Path, PathBuf};
+use walkdir::WalkDir;
 
 /// Some methods to move back and forth in a vec of Paths
 #[derive(Debug, Clone)]
@@ -65,23 +66,21 @@ impl PathCursor {
 
     /// Import all the files under given dir path, performing some sanity checks.
     pub fn import_files(path: &Path) -> Result<Self> {
-        let read_dir = std::fs::read_dir(path).map_err(|e| anyhow!("Get Path Error {}", e))?;
-        let mut files = read_dir
-            .into_iter()
+	let mut paths = WalkDir::new(path)
+	    .into_iter()
             .par_bridge()
-            // filter out i/o errors
-            .filter_map(|x| x.ok())
-            .map(|x| x.path())
+            // ignore i/o errors
+	    .filter_map(|e| e.ok())
             // filter out directories
-            .filter(|x| x.file_name().is_some())
+            .filter(|x| !x.file_type().is_dir())
+            .map(|x| x.into_path())
             .collect::<Vec<PathBuf>>();
 
-        if files.is_empty() {
+        if paths.is_empty() {
             return Err(anyhow!("no files found in image directory"));
         }
-        files.par_sort_unstable_by(|a, b| a.file_name().cmp(&b.file_name()));
-
-        Ok(Self::new(files))
+        paths.par_sort_unstable_by(|a, b| a.file_name().cmp(&b.file_name()));
+        Ok(Self::new(paths))
     }
 }
 
@@ -117,6 +116,14 @@ mod tests {
         assert_eq!(v.prev(), Some(&Path::new("./bim/bam.txt").to_path_buf()));
         assert_eq!(v.prev(), Some(&Path::new("./foo/bar.txt").to_path_buf()));
         assert_eq!(v.prev(), Some(&Path::new("./bar/foo.txt").to_path_buf()));
+        Ok(())
+    }
+    #[test]
+    fn test_walkdir() -> Result<()> {
+	// unnecessary test for personal sanity
+	let mut glob = WalkDir::new("./").into_iter().filter_map(|e| e.ok());
+	let x = glob.find(|e|e.file_name() == "Cargo.toml").unwrap();
+	assert_eq!("Cargo.toml", x.file_name());
         Ok(())
     }
 }

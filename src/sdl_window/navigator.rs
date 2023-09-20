@@ -1,4 +1,5 @@
 use anyhow::Result;
+use anyhow::bail;
 
 use std::path::Path;
 use std::path::PathBuf;
@@ -11,7 +12,7 @@ use super::cursor::PathCursor;
 /// the cursor.
 #[derive(Debug, Clone)]
 pub struct Navigator {
-    pub cursor: PathCursor,
+    cursor: PathCursor,
     pub image: PathBuf,
 }
 
@@ -23,7 +24,7 @@ impl Navigator {
         let image = if let Some(path) = cursor.next() {
             path.to_path_buf()
         } else {
-            panic!("no images found");
+            return bail!("no images found");
         };
         let n = Self { cursor, image };
         Ok(n)
