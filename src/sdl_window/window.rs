@@ -153,6 +153,7 @@ impl SdlWindow {
         if self.pageant.should_update() {
             self.pageant.set_instant();
             let _ = self.next();
+            let _ = self.update_canvas();
         };
     }
 
