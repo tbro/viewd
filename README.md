@@ -14,8 +14,8 @@ Only tested on linux.
 
 ## usage
 
-Accepts a directory containing images as input. It *should* filter out
-non-image files. No recursion is done into sub-directories.
+Requires `--path` parameter to declare filesystem location from which
+application will load images.
 
 on the display box:
 
