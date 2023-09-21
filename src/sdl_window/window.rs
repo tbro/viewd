@@ -87,10 +87,14 @@ impl SdlWindow {
     }
     fn next(&mut self) -> Result<()> {
         self.cursor.next().ok_or(anyhow!("no image found"))?;
+        self.update_title();
+        self.update_window()?;
         Ok(())
     }
     fn prev(&mut self) -> Result<()> {
         self.cursor.prev();
+        self.update_title();
+        self.update_window()?;
         Ok(())
     }
     /// wraps update methods
@@ -108,7 +112,7 @@ impl SdlWindow {
     /// Update window_title on Self and `display_path` in db.
     fn update_title(&mut self) {
         if let Some(name) = self.cursor.image.file_name() {
-            self.db.set("display_path".to_string(), name.into());
+            self.db.set("display_path".into(), name.into());
             self.state.set_title(name);
         }
     }
@@ -173,14 +177,8 @@ impl SdlWindow {
 
                 match command {
                     WindowCommand::Quit => *self.shutdown.lock().unwrap() = true,
-                    WindowCommand::Next => {
-                        self.next()?;
-                        self.update_title();
-                    }
-                    WindowCommand::Prev => {
-                        self.prev()?;
-                        self.update_title();
-                    }
+                    WindowCommand::Next => self.next()?,
+                    WindowCommand::Prev => self.prev()?,
                     WindowCommand::Fullscreen => {
                         self.state.toggle_fullscreen();
                         self.update_window()?;
