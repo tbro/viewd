@@ -40,7 +40,7 @@ impl PathCursor {
         path.map(|s| s.to_path_buf())
     }
     /// get previous
-    pub fn prev(&mut self) -> Option<&PathBuf> {
+    pub fn prev(&mut self) -> Option<PathBuf> {
         // if not None use the index, else set it to 0
         let mut index = self.index.map_or_else(|| 0, |i| i);
         let path = if index == 0 {
@@ -51,7 +51,11 @@ impl PathCursor {
             self.paths.get(index)
         };
         self.index = Some(index);
-        path
+        path.map(|s| s.to_path_buf())
+    }
+    /// check if Vec is empty
+    pub fn is_empty(&self) -> bool {
+        self.paths.is_empty()
     }
     /// remove
     pub fn remove(&mut self) -> Option<PathBuf> {
@@ -112,10 +116,10 @@ mod tests {
     fn test_cursor_prev() -> Result<()> {
         let p = get_paths();
         let mut v = PathCursor::new(p);
-        assert_eq!(v.prev(), Some(&Path::new("./bar/foo.txt").to_path_buf()));
-        assert_eq!(v.prev(), Some(&Path::new("./bim/bam.txt").to_path_buf()));
-        assert_eq!(v.prev(), Some(&Path::new("./foo/bar.txt").to_path_buf()));
-        assert_eq!(v.prev(), Some(&Path::new("./bar/foo.txt").to_path_buf()));
+        assert_eq!(v.prev(), Some(Path::new("./bar/foo.txt").to_path_buf()));
+        assert_eq!(v.prev(), Some(Path::new("./bim/bam.txt").to_path_buf()));
+        assert_eq!(v.prev(), Some(Path::new("./foo/bar.txt").to_path_buf()));
+        assert_eq!(v.prev(), Some(Path::new("./bar/foo.txt").to_path_buf()));
         Ok(())
     }
     #[test]
