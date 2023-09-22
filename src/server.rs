@@ -9,15 +9,16 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::mpsc::Sender;
 use tokio::sync::{broadcast, mpsc, Semaphore};
 use tokio::time::{self, Duration};
+use tokio_rustls::{server::TlsStream, TlsAcceptor};
 use tracing::{debug, error, info};
 
 /// Server listener state. Created in the `run` call. It includes a `run` method
 /// which performs the TCP listening and initialization of per-connection state.
-#[derive(Debug)]
 struct Listener {
     db_holder: DbDropGuard,
     /// TCP listener supplied by the `run` caller.
     listener: TcpListener,
+    aceptor: TlsAcceptor,
     limit_connections: Arc<Semaphore>,
 
     notify_shutdown: broadcast::Sender<()>,
@@ -43,6 +44,7 @@ const MAX_CONNECTIONS: usize = 250;
 
 pub(crate) async fn run(
     listener: TcpListener,
+    aceptor: TlsAcceptor,
     db_holder: DbDropGuard,
     win_cmd_tx: Sender<WindowCommand>,
     shutdown: impl Future,
@@ -53,6 +55,7 @@ pub(crate) async fn run(
     // Initialize the listener state
     let mut server = Listener {
         listener,
+        aceptor,
         db_holder,
         limit_connections: Arc::new(Semaphore::new(MAX_CONNECTIONS)),
         notify_shutdown,
@@ -75,7 +78,7 @@ pub(crate) async fn run(
         _ = shutdown => {
             // The shutdown signal has been received.
             info!("shutting down");
-        let _ = win_cmd_tx.send(WindowCommand::Quit).await;
+            let _ = win_cmd_tx.send(WindowCommand::Quit).await;
         }
     }
     // Extract the `shutdown_complete` receiver and transmitter
@@ -134,8 +137,8 @@ impl Listener {
                 win_cmd_tx: self.win_cmd_tx.clone(),
 
                 // Initialize the connection state. This allocates read/write
-                // buffers to perform redis protocol frame parsing.
-                connection: Connection::new(socket),
+                // buffers to perform frame parsing.
+                connection: Connection::new(socket.into()),
 
                 shutdown: Shutdown::new(self.notify_shutdown.subscribe()),
 
@@ -165,7 +168,7 @@ impl Listener {
     /// After the second failure, the task waits for 2 seconds. Each subsequent
     /// failure doubles the wait time. If accepting fails on the 6th try after
     /// waiting for 64 seconds, then this function returns with an error.
-    async fn accept(&mut self) -> crate::Result<TcpStream> {
+    async fn accept(&mut self) -> crate::Result<TlsStream<TcpStream>> {
         let mut backoff = 1;
 
         // Try to accept a few times
@@ -173,7 +176,10 @@ impl Listener {
             // Perform the accept operation. If a socket is successfully
             // accepted, return it. Otherwise, save the error.
             match self.listener.accept().await {
-                Ok((socket, _)) => return Ok(socket),
+                Ok((socket, _)) => {
+                    let socket = self.aceptor.accept(socket).await?;
+                    return Ok(socket);
+                }
                 Err(err) => {
                     if backoff > 64 {
                         // Accept has failed too many times. Return the error.

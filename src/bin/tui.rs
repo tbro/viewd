@@ -2,7 +2,8 @@ use clap::Parser;
 use crossterm::terminal::{Clear, ClearType, SetTitle};
 use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;
-use std::io::{self, Write};
+use tracing::debug;
+use std::io;
 use std::time::Duration;
 use std::{fmt, str};
 
@@ -15,16 +16,18 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 
-use viewd::{clients::Client, window::DISPLAY_PATH, DEFAULT_PORT};
+use viewd::{
+    clients::{Client, Config},
+    window::DISPLAY_PATH,
+};
 
 #[derive(Parser, Debug)]
 #[clap(name = "viewd-tui", version, author, about = "Viewd Terminal UI")]
 struct Cli {
-    #[clap(name = "hostname", long, default_value = "127.0.0.1")]
-    host: String,
-
-    #[clap(long, default_value_t = DEFAULT_PORT)]
-    port: u16,
+    #[clap(name = "hostname", long)]
+    host: Option<String>,
+    #[clap(long)]
+    port: Option<u16>,
 }
 
 /// Enumeration of commands to send to Server
@@ -50,6 +53,7 @@ impl fmt::Display for ServerCommand {
     }
 }
 
+struct Shutdown(bool);
 /// Struct to hold Terminual UI
 struct Tui {
     /// Time to wait between ui updates
@@ -88,6 +92,38 @@ impl Tui {
         )?;
         Ok(())
     }
+    /// Send Tls Stream the shutdown signal
+    async fn shutdown(self) -> viewd::Result<()> {
+        self.client.shutdown().await
+    }
+    /// Handle keyboard input
+    async fn handle_keycode(&mut self, event: Event) -> viewd::Result<Shutdown> {
+        if let Event::Key(KeyEvent {
+            code, modifiers, ..
+        }) = event
+        {
+            // handle Ctrl-C
+            if code == KeyCode::Char('c') && modifiers == KeyModifiers::CONTROL {
+                return Ok(Shutdown(true));
+            }
+
+            match code {
+                // ESC or 'q' will also end the loop
+                KeyCode::Esc | KeyCode::Char('q') => {
+                    return Ok(Shutdown(true));
+                }
+                KeyCode::Char('f') => self.exec(ServerCommand::Fullscreen).await?,
+                KeyCode::Char('r') => self.exec(ServerCommand::Rotate).await?,
+                KeyCode::Right => self.exec(ServerCommand::Next).await?,
+                KeyCode::Left => self.exec(ServerCommand::Prev).await?,
+                KeyCode::Char(' ') | KeyCode::Char('p') => {
+                    self.exec(ServerCommand::Pageant).await?
+                }
+                _ => debug!("Unhandled Event:: {:?}", code),
+            };
+        }
+        Ok(Shutdown(false))
+    }
     /// Event Loop to map keyboard events to TCP commands. Image
     /// currently displayed in the terminal will also be updated
     /// every `delay`.
@@ -96,46 +132,30 @@ impl Tui {
             let mut delay = Delay::new(self.wait).fuse();
             let mut event = self.reader.next().fuse();
 
+            // select on `get`s to server and polling for keyboard input
             select! {
             _ = delay => {
-                let s = DISPLAY_PATH;
-                if let Some(value) = self.client.get(s).await? {
-                    if let Ok(s) = str::from_utf8(&value) {
-            self.update(s)?
-                     }
-                 }
-             }
-             maybe_event = event => {
-                 match maybe_event {
-                     Some(Err(e)) => eprintln!("Error: {:?}\r", e),
-                     None => break Ok(()),
-                     Some(Ok(event)) => {
-                         if let Event::Key(KeyEvent {
-                             code, modifiers, ..
-                         }) = event
-                         {
-                             // handle Ctrl-C
-                             if code == KeyCode::Char('c') && modifiers == KeyModifiers::CONTROL {
-                                 break Ok(());
-                             }
-                             // handle Command Events
-                             match code {
-                                 // ESC or 'q' will also end the loop
-                                 KeyCode::Esc | KeyCode::Char('q') => break Ok(()),
-                                 KeyCode::Char('f') => self.exec(ServerCommand::Fullscreen).await?,
-                                 KeyCode::Char('r') => self.exec(ServerCommand::Rotate).await?,
-                                 KeyCode::Right => self.exec(ServerCommand::Next).await?,
-                                 KeyCode::Left => self.exec(ServerCommand::Prev).await?,
-                                 KeyCode::Char(' ') | KeyCode::Char('p') => {
-                                     self.exec(ServerCommand::Pageant).await?
-                                 }
-                                 _ => println!("Unhandled Event::{:?}\r", event),
-                             }
+                    let s = DISPLAY_PATH;
+                    if let Some(value) = self.client.get(s).await? {
+                        if let Ok(s) = str::from_utf8(&value) {
+			    self.update(s)?
                          }
                      }
-             }
-                }
-            }
+                 }
+                 maybe_event = event => {
+                     match maybe_event {
+                         Some(Err(e)) => debug!("Error: {:?}\r", e),
+                         None => break Ok(()),
+                         Some(Ok(event)) => {
+                             // handle Command Events
+			     // if Shutdown was set to true, break
+			     if self.handle_keycode(event).await?.0 {
+				 break Ok(());
+			     }
+                         }
+                     }
+		 }
+	    }
         }
     }
     /// Set terminal window title and clear the terminal
@@ -156,12 +176,13 @@ async fn main() -> viewd::Result<()> {
 
     // Parse command line arguments
     let cli = Cli::parse();
-
-    // Get the remote address to connect to
-    let addr = format!("{}:{}", cli.host, cli.port);
+    let config = Config::new()?;
+    let con_config = config.clone();
+    let host = cli.host.unwrap_or(config.host.to_string());
+    let port = cli.port.unwrap_or(config.port);
 
     // Establish a connection
-    let client = Client::connect(&addr).await?;
+    let client = Client::connect(&host, port, con_config).await?;
 
     enable_raw_mode()?;
 
@@ -169,10 +190,12 @@ async fn main() -> viewd::Result<()> {
     tui.set_title()?;
 
     if let Err(e) = tui.handle_events().await {
-        println!("Error: {:?}\r", e);
+        debug!("Error: {:?}\r", e);
     }
 
     disable_raw_mode()?;
+    // calls shutdown on the TcpStream
+    tui.shutdown().await?;
 
     Ok(())
 }

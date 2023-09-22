@@ -4,13 +4,14 @@ use bytes::{Buf, BytesMut};
 use std::io::{self, Cursor};
 use tokio::io::{AsyncReadExt, AsyncWriteExt, BufWriter};
 use tokio::net::TcpStream;
+use tokio_rustls::TlsStream;
 
 #[derive(Debug)]
 pub struct Connection {
     // The `TcpStream`. It is decorated with a `BufWriter`, which provides write
     // level buffering. The `BufWriter` implementation provided by Tokio is
     // sufficient for our needs.
-    stream: BufWriter<TcpStream>,
+    stream: BufWriter<TlsStream<TcpStream>>,
 
     // The buffer for reading frames.
     buffer: BytesMut,
@@ -19,17 +20,18 @@ pub struct Connection {
 impl Connection {
     /// Create a new `Connection`, backed by `socket`. Read and write buffers
     /// are initialized.
-    pub fn new(socket: TcpStream) -> Connection {
+    pub fn new(socket: TlsStream<TcpStream>) -> Connection {
         Connection {
             stream: BufWriter::new(socket),
-            // Default to a 4KB read buffer. For the use case of mini redis,
-            // this is fine. However, real applications will want to tune this
-            // value to their specific use case. There is a high likelihood that
-            // a larger read buffer will work better.
+            // Default to a 4KB read buffer.
             buffer: BytesMut::with_capacity(4 * 1024),
         }
     }
 
+    pub async fn shutdown(mut self) -> crate::Result<()> {
+        self.stream.shutdown().await?;
+        Ok(())
+    }
     /// Read a single `Frame` value from the underlying stream.
     ///
     /// The function waits until it has retrieved enough data to parse a frame.
@@ -105,8 +107,7 @@ impl Connection {
     /// full, it is flushed to the underlying socket.
     pub async fn write_frame(&mut self, frame: &Frame) -> io::Result<()> {
         // Arrays are encoded by encoding each entry. All other frame types are
-        // considered literals. For now, mini-redis is not able to encode
-        // recursive frame structures. See below for more details.
+        // considered literals.
         match frame {
             Frame::Array(val) => {
                 // Encode the frame type prefix. For an array, it is `*`.
@@ -157,11 +158,6 @@ impl Connection {
             }
 
             Frame::DataChunk { chunk: _ } => todo!(),
-
-            // Encoding an `Array` from within a value cannot be done using a
-            // recursive strategy. In general, async fns do not support
-            // recursion. Mini-redis has not needed to encode nested arrays yet,
-            // so for now it is skipped.
             Frame::Array(_val) => unreachable!(),
         }
         Ok(())

@@ -1,0 +1,8 @@
+debug = false
+ca-file = "certs/root-ca.pem"
+# domain currently only used for TLS, should match end-entity cert
+host = "viewd.host.home"
+port = 6379
+tls-key-file = "certs/server.key.pem"
+tls-cert-file = "unknown"
+

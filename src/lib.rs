@@ -1,3 +1,5 @@
+pub mod serve;
+
 pub mod clients;
 pub use clients::Client;
 

@@ -1,16 +1,19 @@
 # viewd
-A image viewer server and client for viewing images on a remote box
-(presumably with monitor connected). Probably no for everyone, but it
-is useful to me. It uses sdl2 for image display and TCP for network
-communication. Network protocol is a subset of redis communication
-protocol.
+An image viewer server and client for viewing images on a remote box
+(presumably with monitor connected). It uses sdl2 for image display
+and TCP for network communication. All connections are encrypted and
+authorized by TLS. Network protocol borrows heavily from tokio's
+[mini-redis](https://github.com/tokio-rs/mini-redis) project.
 
 Only tested on linux.
 
-## Todo
+## setup
 
-  * lots of stuff
-  * ???
+Networking is setup to use TLS by default, so you will first need to
+configure certificates. [This
+script](https://github.com/rustls/tokio-rustls/blob/main/scripts/generate-certificate.sh)
+can generate them for you if you like. Then make sure your
+configuration files point to the correct keys and certificates.
 
 ## usage
 
@@ -45,6 +48,11 @@ In a addition to the TUI, there is also a cli. You can get its usage
 by passing the `--help` option.
 
 	cargo run --bin viewd-cli -- --help
+
+## Todo
+
+  * lots of stuff
+  * ???
 
 ## system dependencies
 

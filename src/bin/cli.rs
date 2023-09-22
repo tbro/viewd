@@ -1,3 +1,4 @@
+use tokio_rustls::rustls;
 use viewd::{clients::Client, window::DISPLAY_PATH, DEFAULT_PORT};
 
 use clap::{Parser, Subcommand};
@@ -40,7 +41,8 @@ async fn main() -> viewd::Result<()> {
     let addr = format!("{}:{}", cli.host, cli.port);
 
     // Establish a connection
-    let mut client = Client::connect(&addr).await?;
+    let mut root_cert_store = rustls::RootCertStore::empty();
+    let mut client = Client::connect(&addr, root_cert_store).await?;
 
     // Process the requested command
     // Set takes key, value, but currently only key is used.

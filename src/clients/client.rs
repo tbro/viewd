@@ -1,9 +1,13 @@
 use crate::cmd::{Get, Set};
 use crate::{Connection, Frame};
 
+use crate::clients::{config::Config, tls::connector};
 use bytes::Bytes;
 use std::io::{Error, ErrorKind};
-use tokio::net::{TcpStream, ToSocketAddrs};
+use std::sync::Arc;
+use tokio::net::TcpStream;
+use tokio_rustls::rustls::ServerName;
+
 use tracing::{debug, instrument};
 
 pub struct Client {
@@ -11,16 +15,25 @@ pub struct Client {
 }
 
 impl Client {
-    pub async fn connect<T: ToSocketAddrs>(addr: T) -> crate::Result<Client> {
-        let socket = TcpStream::connect(addr).await?;
+    pub async fn connect(host: &str, port: u16, config: Arc<Config>) -> crate::Result<Client> {
+        // Get the remote address to connect to
+        let addr = format!("{}:{}", host, port);
+        let host = ServerName::try_from(config.host.as_str())?;
 
+        // initialize TLS connector
+        let tls_connector = connector(config)?;
+        let socket = TcpStream::connect(addr).await?;
+        let socket = tls_connector.connect(host, socket).await?;
         // Initialize the connection state. This allocates read/write buffers to
-        // perform redis protocol frame parsing.
-        let connection = Connection::new(socket);
+        // perform frame parsing.
+        let connection = Connection::new(socket.into());
 
         Ok(Client { connection })
     }
 
+    pub async fn shutdown(self) -> crate::Result<()> {
+        self.connection.shutdown().await
+    }
     #[instrument(skip(self))]
     pub async fn get(&mut self, key: &str) -> crate::Result<Option<Bytes>> {
         // Create a `Get` command for the `key` and convert it to a frame.

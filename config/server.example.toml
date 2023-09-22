@@ -1,0 +1,10 @@
+debug = false
+path = "~/Pictures/art"
+ca-file = "certs/root-ca.pem"
+port = 6379
+# pkcs8 private key
+tls-key-file = "certs/server.key.pem"
+# tls-cert-file is end-entity certificate
+tls-cert-file = "certs/cert.pem"
+
+
