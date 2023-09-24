@@ -12,6 +12,7 @@ use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc::Receiver;
 
 use crate::db::Db;
+use crate::serve::Config;
 use crate::window::WindowCommand;
 
 use super::navigator::Navigator;
@@ -45,10 +46,11 @@ impl SdlWindow {
         path: &Path,
         rx: Receiver<WindowCommand>,
         db: Db,
+        config: Arc<Config>,
     ) -> Result<Self> {
         let state = WindowState::new(title);
         let cursor = Navigator::new(path)?;
-        let pageant = PageantMode::new();
+        let pageant = PageantMode::new(config.pageant_wait);
         let sdl_context = sdl2::init().map_err(|e| anyhow!("Navigator init Error: {}", e))?;
         let event_pump = sdl_context
             .event_pump()

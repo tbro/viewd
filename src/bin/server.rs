@@ -25,7 +25,7 @@ pub async fn main() -> anyhow::Result<()> {
         .path
         .unwrap_or_else(|| config.path.as_path().to_path_buf());
 
-    control::run(&format!("127.0.0.1:{}", port), &path, acceptor).await?;
+    control::run(&format!("127.0.0.1:{}", port), &path, config, acceptor).await?;
     Ok(())
 }
 

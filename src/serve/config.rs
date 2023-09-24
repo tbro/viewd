@@ -13,6 +13,8 @@ pub struct Config {
     #[serde(rename = "tls-cert-file")]
     pub cert: PathBuf,
     pub path: PathBuf,
+    #[serde(rename = "pageant-wait", default = "default_pageant_wait")]
+    pub pageant_wait: u64,
 }
 
 impl Config {
@@ -29,6 +31,9 @@ impl Config {
 
 fn default_port() -> u16 {
     DEFAULT_PORT
+}
+fn default_pageant_wait() -> u64 {
+    1000
 }
 
 #[cfg(test)]

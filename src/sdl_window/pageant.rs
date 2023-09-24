@@ -10,9 +10,9 @@ pub struct PageantMode {
 }
 
 impl PageantMode {
-    pub fn new() -> Self {
+    pub fn new(timeout: u64) -> Self {
         Self {
-            timeout: 1000,
+            timeout,
             instant: None,
         }
     }
@@ -43,32 +43,12 @@ mod tests {
     use super::*;
     use anyhow::Result;
 
-    struct MockController {
-        pageant: PageantMode,
-    }
-
-    impl MockController {
-        pub fn new() -> Self {
-            let pageant = PageantMode::new();
-            Self { pageant }
-        }
-    }
-
     #[test]
     fn toggle_pageant() -> Result<()> {
-        let mut pageant = PageantMode::new();
+        let mut pageant = PageantMode::new(1000);
         assert!(pageant.instant.is_none());
         pageant.toggle();
         assert!(pageant.instant.is_some());
-        Ok(())
-    }
-
-    #[test]
-    fn nested_update_pageant() -> Result<()> {
-        let mut control = MockController::new();
-        assert!(control.pageant.instant.is_none());
-        control.pageant.toggle();
-        assert!(control.pageant.instant.is_some());
         Ok(())
     }
 }

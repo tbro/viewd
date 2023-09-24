@@ -6,5 +6,7 @@ port = 6379
 tls-key-file = "certs/server.key.pem"
 # tls-cert-file is end-entity certificate
 tls-cert-file = "certs/cert.pem"
+# wait time of pageant mode in milliseconds
+pageant-wait = 1000
 
 

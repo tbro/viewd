@@ -2,10 +2,10 @@ use clap::Parser;
 use crossterm::terminal::{Clear, ClearType, SetTitle};
 use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;
-use tracing::debug;
 use std::io;
 use std::time::Duration;
 use std::{fmt, str};
+use tracing::debug;
 
 use crossterm::event::KeyModifiers;
 use crossterm::{
@@ -127,6 +127,7 @@ impl Tui {
     /// Event Loop to map keyboard events to TCP commands. Image
     /// currently displayed in the terminal will also be updated
     /// every `delay`.
+    #[rustfmt::skip]
     async fn handle_events(&mut self) -> viewd::Result<()> {
         loop {
             let mut delay = Delay::new(self.wait).fuse();
