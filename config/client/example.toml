@@ -1,0 +1,10 @@
+debug = false
+ca-file = "config/client/tls/root-ca.pem"
+# domain currently only used for TLS, should match end-entity cert
+host = "viewd.host.home"
+port = 6379
+# pkcs8 private key
+tls-key-file = "config/client/tls/server.key.pem"
+# tls-cert-file is end-entity certificate
+tls-cert-file = "config/client/tls/cert.pem"
+

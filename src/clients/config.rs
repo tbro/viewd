@@ -1,7 +1,7 @@
 use anyhow::Result;
 use config::Config as Configurator;
 
-use std::{path::PathBuf, sync::Arc};
+use std::{path::{PathBuf, Path}, sync::Arc};
 
 use crate::DEFAULT_PORT;
 #[derive(Clone, Debug, serde_derive::Deserialize, PartialEq, Eq)]
@@ -18,9 +18,9 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Result<Arc<Self>> {
+    pub fn new(path: &Path) -> Result<Arc<Self>> {
         let settings = Configurator::builder()
-            .add_source(config::File::with_name("config/client.example.toml"))
+            .add_source(config::File::from(path))
             .add_source(config::Environment::with_prefix("VIEWD"))
             .build()?;
 
@@ -39,7 +39,7 @@ mod tests {
 
     #[test]
     fn test_default_port() -> Result<()> {
-        let c = Config::new()?;
+        let c = Config::new(&Path::new("config/client/example.toml"))?;
         assert_eq!(DEFAULT_PORT, c.port);
         Ok(())
     }

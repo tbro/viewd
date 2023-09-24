@@ -1,6 +1,6 @@
 use anyhow::Result;
 use config::Config as Configurator;
-use std::{path::PathBuf, sync::Arc};
+use std::{path::{PathBuf, Path}, sync::Arc};
 
 use crate::DEFAULT_PORT;
 
@@ -10,17 +10,20 @@ pub struct Config {
     pub port: u16,
     #[serde(rename = "tls-key-file")]
     pub key: PathBuf,
+    /// end-entity certificate of server
     #[serde(rename = "tls-cert-file")]
     pub cert: PathBuf,
+    #[serde(rename = "ca-file")]
+    pub ca: PathBuf,
     pub path: PathBuf,
     #[serde(rename = "pageant-wait", default = "default_pageant_wait")]
     pub pageant_wait: u64,
 }
 
 impl Config {
-    pub fn new() -> Result<Arc<Self>> {
+    pub fn new(path: &Path) -> Result<Arc<Self>> {
         let settings = Configurator::builder()
-            .add_source(config::File::with_name("config/server.example.toml"))
+            .add_source(config::File::from(path))
             .add_source(config::Environment::with_prefix("VIEWD"))
             .build()?;
 
@@ -32,6 +35,7 @@ impl Config {
 fn default_port() -> u16 {
     DEFAULT_PORT
 }
+
 fn default_pageant_wait() -> u64 {
     1000
 }
@@ -42,7 +46,7 @@ mod tests {
 
     #[test]
     fn test_default_port() -> Result<()> {
-        let c = Config::new()?;
+        let c = Config::new(&Path::new("config/server/example.toml"))?;
         assert_eq!(DEFAULT_PORT, c.port);
         Ok(())
     }

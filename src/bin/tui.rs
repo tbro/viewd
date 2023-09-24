@@ -3,6 +3,7 @@ use crossterm::terminal::{Clear, ClearType, SetTitle};
 use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;
 use std::io;
+use std::path::PathBuf;
 use std::time::Duration;
 use std::{fmt, str};
 use tracing::debug;
@@ -28,6 +29,8 @@ struct Cli {
     host: Option<String>,
     #[clap(long)]
     port: Option<u16>,
+    #[clap(long, short, default_value = "config/client/example.toml")]
+    config: PathBuf,
 }
 
 /// Enumeration of commands to send to Server
@@ -177,7 +180,7 @@ async fn main() -> viewd::Result<()> {
 
     // Parse command line arguments
     let cli = Cli::parse();
-    let config = Config::new()?;
+    let config = Config::new(cli.config.as_path())?;
     let con_config = config.clone();
     let host = cli.host.unwrap_or(config.host.to_string());
     let port = cli.port.unwrap_or(config.port);
@@ -195,7 +198,7 @@ async fn main() -> viewd::Result<()> {
     }
 
     disable_raw_mode()?;
-    // calls shutdown on the TcpStream
+    // shutdown TcpStream
     tui.shutdown().await?;
 
     Ok(())

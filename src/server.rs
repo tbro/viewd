@@ -106,8 +106,6 @@ pub(crate) async fn run(
 impl Listener {
     async fn run(&mut self) -> crate::Result<()> {
         info!("accepting inbound connections");
-        // initialize channel to receive window commands from request handlers
-
         loop {
             // Wait for a permit to become available
             //
@@ -163,22 +161,37 @@ impl Listener {
 
     /// Accept an inbound connection.
     ///
-    /// Errors are handled by backing off and retrying. An exponential backoff
-    /// strategy is used. After the first failure, the task waits for 1 second.
-    /// After the second failure, the task waits for 2 seconds. Each subsequent
-    /// failure doubles the wait time. If accepting fails on the 6th try after
-    /// waiting for 64 seconds, then this function returns with an error.
+    /// TCP connection errors and TLS acceptance errors are handled by
+    /// backing off and retrying. An exponential backoff strategy is
+    /// used. After the first failure, the task waits for 1 second.
+    /// After the second failure, the task waits for 2 seconds. Each
+    /// subsequent failure doubles the wait time. If accepting fails
+    /// on the 6th try after waiting for 64 seconds, then this
+    /// function returns with an error. The nested structure means
+    /// there are two sequential and identical backoff procdures, the
+    /// first for the TCP connection and the second for TLS.
     async fn accept(&mut self) -> crate::Result<TlsStream<TcpStream>> {
         let mut backoff = 1;
 
         // Try to accept a few times
         loop {
-            // Perform the accept operation. If a socket is successfully
-            // accepted, return it. Otherwise, save the error.
+            // Perform the TCP accept operation. If a socket is successfully
+            // accepted, it to TLS. Otherwise, save the error.
             match self.listener.accept().await {
                 Ok((socket, _)) => {
-                    let socket = self.aceptor.accept(socket).await?;
-                    return Ok(socket);
+		    // Perform the TLS accept operation. If a socket is successfully
+		    // accepted, return it. Otherwise, save the error.
+                    match self.aceptor.accept(socket).await {
+                        Ok(socket) => {
+                            return Ok(socket);
+                        }
+                        Err(err) => {
+                            if backoff > 64 {
+                                // Accept has failed too many times. Return the error.
+                                return Err(err.into());
+                            }
+                        }
+                    };
                 }
                 Err(err) => {
                     if backoff > 64 {
@@ -186,8 +199,7 @@ impl Listener {
                         return Err(err.into());
                     }
                 }
-            }
-
+            };
             // Pause execution until the back off period elapses.
             time::sleep(Duration::from_secs(backoff)).await;
 

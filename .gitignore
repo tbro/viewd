@@ -1,2 +1,4 @@
 /target
 /Cargo.lock
+/config/server/tls/*
+/config/client/tls/*

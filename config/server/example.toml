@@ -1,11 +1,11 @@
 debug = false
 path = "~/Pictures/art"
-ca-file = "certs/root-ca.pem"
+ca-file = "config/server/tls/root-ca.pem"
 port = 6379
 # pkcs8 private key
-tls-key-file = "certs/server.key.pem"
+tls-key-file = "config/server/tls/server.key.pem"
 # tls-cert-file is end-entity certificate
-tls-cert-file = "certs/cert.pem"
+tls-cert-file = "config/server/tls/cert.pem"
 # wait time of pageant mode in milliseconds
 pageant-wait = 1000
 

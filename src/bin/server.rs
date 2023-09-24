@@ -16,7 +16,7 @@ pub async fn main() -> anyhow::Result<()> {
     set_up_logging()?;
 
     let cli = Cli::parse();
-    let config = Config::new()?;
+    let config = Config::new(cli.config.as_path())?;
 
     // get the TLS acceptor
     let acceptor = get_acceptor(config.clone())?;
@@ -36,6 +36,8 @@ pub struct Cli {
     port: Option<u16>,
     #[clap(long)]
     path: Option<PathBuf>,
+    #[clap(long, short, default_value = "config/server/example.toml")]
+    config: PathBuf,
 }
 
 fn set_up_logging() -> anyhow::Result<()> {
