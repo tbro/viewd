@@ -29,6 +29,9 @@ use window::WindowCommand;
 
 pub mod sdl_window;
 
+pub mod tui;
+pub use tui::Tui;
+
 /// Used if no port is specified.
 pub const DEFAULT_PORT: u16 = 6379;
 
