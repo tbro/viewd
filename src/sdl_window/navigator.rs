@@ -2,11 +2,11 @@ use anyhow::anyhow;
 use anyhow::Result;
 use sdl2::image::LoadSurface;
 use sdl2::surface::Surface;
+use walkdir::WalkDir;
 
 use std::path::Path;
 use std::path::PathBuf;
-
-use super::cursor::PathCursor;
+use super::cursor::Cursor;
 
 /// Navigator holds the list of images and methods to move through
 /// them. It wraps cursor to provide a facade for simplifying the
@@ -14,7 +14,7 @@ use super::cursor::PathCursor;
 /// the cursor.
 #[derive(Debug, Clone)]
 pub struct Navigator {
-    cursor: PathCursor,
+    cursor: Cursor<PathBuf>,
     pub image: PathBuf,
 }
 
@@ -22,7 +22,7 @@ impl Navigator {
     /// initialized the cursor and checks does a basic check that
     /// cursor holds at least one path.
     pub fn new(path: &Path) -> Result<Self> {
-        let mut cursor = PathCursor::import_files(path)?;
+        let mut cursor = Navigator::import_files(path)?;
         let image = cursor.next().ok_or(anyhow!("no image found"))?;
         let n = Self { cursor, image };
         Ok(n)
@@ -73,5 +73,37 @@ impl Navigator {
         }
         // if above conditions are not met, call again
         self.prev()
+    }
+    /// Import all the files under given dir path, performing some sanity checks.
+    pub fn import_files(path: &Path) -> Result<Cursor<PathBuf>> {
+	use rayon::prelude::*;
+        let mut paths = WalkDir::new(path)
+            .into_iter()
+            .par_bridge()
+            // ignore i/o errors
+            .filter_map(|e| e.ok())
+            // filter out directories
+            .filter(|x| !x.file_type().is_dir())
+            .map(|x| x.into_path())
+            .collect::<Vec<PathBuf>>();
+
+        if paths.is_empty() {
+            return Err(anyhow!("no files found in image directory"));
+        }
+        paths.par_sort_unstable_by(|a, b| a.file_name().cmp(&b.file_name()));
+        Ok(Cursor::new(paths))
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_walkdir() -> Result<()> {
+        // unnecessary test for personal sanity
+        let mut glob = WalkDir::new("./").into_iter().filter_map(|e| e.ok());
+        let x = glob.find(|e| e.file_name() == "Cargo.toml").unwrap();
+        assert_eq!("Cargo.toml", x.file_name());
+        Ok(())
     }
 }
