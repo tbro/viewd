@@ -4,9 +4,9 @@ use sdl2::image::LoadSurface;
 use sdl2::surface::Surface;
 use walkdir::WalkDir;
 
+use super::cursor::Cursor;
 use std::path::Path;
 use std::path::PathBuf;
-use super::cursor::Cursor;
 
 /// Navigator holds the list of images and methods to move through
 /// them. It wraps cursor to provide a facade for simplifying the
@@ -76,7 +76,7 @@ impl Navigator {
     }
     /// Import all the files under given dir path, performing some sanity checks.
     pub fn import_files(path: &Path) -> Result<Cursor<PathBuf>> {
-	use rayon::prelude::*;
+        use rayon::prelude::*;
         let mut paths = WalkDir::new(path)
             .into_iter()
             .par_bridge()

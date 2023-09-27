@@ -12,11 +12,7 @@ impl<T: std::clone::Clone> Cursor<T> {
     pub fn new(items: Vec<T>) -> Self {
         let index = None;
         let len = items.len();
-        Self {
-            items,
-            index,
-            len,
-        }
+        Self { items, index, len }
     }
     /// get current index then advance
     pub fn next(&mut self) -> Option<T> {
@@ -32,7 +28,7 @@ impl<T: std::clone::Clone> Cursor<T> {
             self.index = Some(1);
             self.items.first()
         };
-	item.cloned()
+        item.cloned()
     }
     /// get previous
     pub fn prev(&mut self) -> Option<T> {
@@ -46,7 +42,7 @@ impl<T: std::clone::Clone> Cursor<T> {
             self.items.get(index)
         };
         self.index = Some(index);
-	item.cloned()
+        item.cloned()
     }
     /// check if Vec is empty
     pub fn is_empty(&self) -> bool {
@@ -71,7 +67,7 @@ mod tests {
 
     #[test]
     fn test_cursor_next() -> Result<()> {
-        let v = vec![1,2,3];
+        let v = vec![1, 2, 3];
         let mut v = Cursor::new(v);
         assert_eq!(v.next(), Some(1));
         assert_eq!(v.next(), Some(2));
@@ -82,7 +78,7 @@ mod tests {
     }
     #[test]
     fn test_cursor_prev() -> Result<()> {
-        let v = vec![1,2,3];
+        let v = vec![1, 2, 3];
         let mut v = Cursor::new(v);
         assert_eq!(v.prev(), Some(3));
         assert_eq!(v.prev(), Some(2));

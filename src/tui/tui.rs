@@ -1,9 +1,8 @@
-use clap::Parser;
 use crossterm::terminal::{Clear, ClearType, SetTitle};
 use futures::{future::FutureExt, select, StreamExt};
 use futures_timer::Delay;
 use std::io;
-use std::path::PathBuf;
+
 use std::time::Duration;
 use std::{fmt, str};
 use tracing::debug;
@@ -14,11 +13,10 @@ use crossterm::{
     event::{Event, EventStream, KeyCode, KeyEvent},
     execute,
     style::{self, Stylize},
-    terminal::{disable_raw_mode, enable_raw_mode},
 };
 
-use crate::Client;
 use crate::window::DISPLAY_PATH;
+use crate::Client;
 
 /// Enumeration of commands to send to Server
 // TODO instead of wrapping `client.set` we could have an exec network

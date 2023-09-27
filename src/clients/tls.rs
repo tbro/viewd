@@ -1,5 +1,5 @@
-use std::io;
 use rustls_pemfile::certs;
+use std::io;
 use std::path::Path;
 use std::sync::Arc;
 

@@ -1,26 +1,10 @@
 use clap::Parser;
-use crossterm::terminal::{Clear, ClearType, SetTitle};
-use futures::{future::FutureExt, select, StreamExt};
-use futures_timer::Delay;
-use std::io;
 use std::path::PathBuf;
-use std::time::Duration;
-use std::{fmt, str};
 use tracing::debug;
-
-use crossterm::event::KeyModifiers;
-use crossterm::{
-    cursor::MoveTo,
-    event::{Event, EventStream, KeyCode, KeyEvent},
-    execute,
-    style::{self, Stylize},
-    terminal::{disable_raw_mode, enable_raw_mode},
-};
-
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use viewd::{
     clients::{Client, Config},
-    window::DISPLAY_PATH,
-    tui::Tui
+    tui::Tui,
 };
 
 #[derive(Parser, Debug)]

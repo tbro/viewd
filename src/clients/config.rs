@@ -1,7 +1,10 @@
 use anyhow::Result;
 use config::Config as Configurator;
 
-use std::{path::{PathBuf, Path}, sync::Arc};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use crate::DEFAULT_PORT;
 #[derive(Clone, Debug, serde_derive::Deserialize, PartialEq, Eq)]
