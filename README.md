@@ -7,6 +7,13 @@ tokio's [mini-redis](https://github.com/tokio-rs/mini-redis) project.
 
 Only tested on linux.
 
+## features
+
+  * headless
+  * fast startup on large image collections
+  * pageant mode (automatically advance through image collection)
+  * TLS mutual authentication
+
 ## usage
 
 The server requires `--path` parameter to declare filesystem location
