@@ -1,9 +1,9 @@
-use tokio_rustls::rustls;
-use viewd::{clients::Client, window::DISPLAY_PATH, DEFAULT_PORT};
-
 use clap::{Parser, Subcommand};
-
-use std::str;
+use std::{path::PathBuf, str};
+use viewd::{
+    clients::{Client, Config},
+    window::DISPLAY_PATH,
+};
 
 #[derive(Parser, Debug)]
 #[clap(name = "viewd-cli", version, author, about = "Issue Viewd Commands")]
@@ -11,11 +11,14 @@ struct Cli {
     #[clap(subcommand)]
     command: Command,
 
-    #[clap(name = "hostname", long, default_value = "127.0.0.1")]
-    host: String,
+    #[clap(name = "hostname", long)]
+    host: Option<String>,
 
-    #[clap(long, default_value_t = DEFAULT_PORT)]
-    port: u16,
+    #[clap(long)]
+    port: Option<u16>,
+
+    #[clap(long, short, default_value = "config/client/example.toml")]
+    config: PathBuf,
 }
 
 #[derive(Subcommand, Debug)]
@@ -37,12 +40,14 @@ async fn main() -> viewd::Result<()> {
     // Parse command line arguments
     let cli = Cli::parse();
 
-    // Get the remote address to connect to
-    let addr = format!("{}:{}", cli.host, cli.port);
-
     // Establish a connection
-    let mut root_cert_store = rustls::RootCertStore::empty();
-    let mut client = Client::connect(&addr, root_cert_store).await?;
+    let config = Config::new(cli.config.as_path())?;
+    let con_config = config.clone();
+
+    let host = cli.host.unwrap_or(config.host.to_string());
+    let port = cli.port.unwrap_or(config.port);
+
+    let mut client = Client::connect(&host, port, con_config).await?;
 
     // Process the requested command
     // Set takes key, value, but currently only key is used.
