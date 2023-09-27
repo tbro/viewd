@@ -12,7 +12,7 @@ use viewd::control;
 use viewd::serve::{get_acceptor, Config};
 
 #[tokio::main]
-pub async fn main() -> anyhow::Result<()> {
+async fn main() -> anyhow::Result<()> {
     set_up_logging()?;
 
     let cli = Cli::parse();
