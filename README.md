@@ -9,7 +9,6 @@ Only tested on linux.
 
 ## features
 
-  * headless
   * fast startup on large image collections
   * pageant mode (automatically advance through image collection)
   * TLS mutual authentication
@@ -47,15 +46,16 @@ should be self explanitory.
 ## setup
 
 Networking is setup to use TLS by default, so you will first need to
-configure certificates. [This
-script](https://github.com/rustls/tokio-rustls/blob/main/scripts/generate-certificate.sh)
-can generate them for you if you like. Then make sure your
-configuration files point to the correct keys and certificates. Useful
-defaults and examples have been supplied, pass `--help` option to each
-command for more information. For a connection to succeed, host name
-of server in end entity cert must match host client is making request
-to. So an update to your favorite name service is required. An easy
-option is to assign the server a name in the client's `/etc/hosts`.
+configure certificates. I made the [myca utiltity](https://github.com/tbro/myca) to assist with
+this. There are also [online
+scripts](https://github.com/rustls/tokio-rustls/blob/main/scripts/generate-certificate.sh)
+that do the same. Then make sure your configuration files point to the
+correct keys and certificates. Useful defaults and examples have been
+supplied, pass `--help` option to each command for more
+information. For a connection to succeed, host name of server in end
+entity cert must match host client is making request to. So an update
+to your favorite name service is required. An easy option is to assign
+the server a name in the client's `/etc/hosts`.
 
 
 ### viewd-cli
