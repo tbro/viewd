@@ -19,6 +19,7 @@ pub struct Config {
     #[serde(rename = "ca-file")]
     pub ca: PathBuf,
     pub path: PathBuf,
+    /// milliseconds to wait between updating image in pageant mode
     #[serde(rename = "pageant-wait", default = "default_pageant_wait")]
     pub pageant_wait: u64,
 }

@@ -9,7 +9,7 @@
 use clap::Parser;
 use std::path::PathBuf;
 use viewd::control;
-use viewd::serve::{get_acceptor, Config};
+use viewd::serve::Config;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -18,14 +18,12 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let config = Config::new(cli.config.as_path())?;
 
-    // get the TLS acceptor
-    let acceptor = get_acceptor(config.clone())?;
     let port = cli.port.unwrap_or(config.port);
     let path = cli
         .path
         .unwrap_or_else(|| config.path.as_path().to_path_buf());
 
-    control::run(&format!("127.0.0.1:{}", port), &path, config, acceptor).await?;
+    control::run(&format!("127.0.0.1:{}", port), &path, config).await?;
     Ok(())
 }
 

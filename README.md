@@ -46,7 +46,7 @@ should be self explanitory.
 ## setup
 
 Networking is setup to use TLS by default, so you will first need to
-configure certificates. I made the [myca utiltity](https://github.com/tbro/myca) to assist with
+configure certificates. I made the [myca utility](https://github.com/tbro/myca) to assist with
 this. There are also [online
 scripts](https://github.com/rustls/tokio-rustls/blob/main/scripts/generate-certificate.sh)
 that do the same. Then make sure your configuration files point to the

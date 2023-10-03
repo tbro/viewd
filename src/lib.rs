@@ -1,5 +1,7 @@
 pub mod serve;
 
+pub use serve::Listener;
+
 pub mod clients;
 pub use clients::Client;
 

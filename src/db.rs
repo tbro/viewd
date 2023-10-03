@@ -6,14 +6,14 @@ use std::ffi::OsString;
 use std::sync::{Arc, Mutex};
 
 #[derive(Debug)]
-pub(crate) struct DbDropGuard {
+pub struct DbDropGuard {
     /// The `Db` instance that will be shut down when this `DbHolder` struct
     /// is dropped.
     db: Db,
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct Db {
+pub struct Db {
     /// Handle to shared state. The background task will also have an
     /// `Arc<Shared>`.
     shared: Arc<Shared>,

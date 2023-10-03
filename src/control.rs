@@ -6,7 +6,7 @@ use tokio::sync::mpsc::channel;
 
 use crate::db::DbDropGuard;
 use crate::sdl_window::SdlWindow;
-use crate::serve::Config;
+use crate::serve::{get_acceptor, Config};
 use crate::server;
 
 /// Spawns TPCListener task and initialized SdlWindow control loop. Database
@@ -16,7 +16,6 @@ pub async fn run<A: ToSocketAddrs>(
     addr: A,
     path: &Path,
     config: Arc<Config>,
-    acceptor: tokio_rustls::TlsAcceptor,
 ) -> anyhow::Result<()> {
     let db_holder = DbDropGuard::new();
     let db = db_holder.db();
@@ -24,8 +23,11 @@ pub async fn run<A: ToSocketAddrs>(
     let (win_cmd_tx, win_cmd_rx) = channel(32);
     let listener = TcpListener::bind(addr).await?;
 
+    // get TLS acceptor
+    let acceptor = get_acceptor(config.clone())?;
+
     tokio::spawn(async move {
-        server::run(listener, acceptor, db_holder, win_cmd_tx, signal::ctrl_c()).await;
+        server::run(listener, db_holder, win_cmd_tx, acceptor, signal::ctrl_c()).await;
     });
 
     let mut window = SdlWindow::new("viewd", path, win_cmd_rx, db, config)?;
